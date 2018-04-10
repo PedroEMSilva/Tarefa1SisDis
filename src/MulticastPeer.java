@@ -9,17 +9,22 @@ import java.util.logging.Logger;
 import java.util.Random;
 
 public class MulticastPeer {
-
+    //rand para criar o id 
     Random rand = new Random();
+    //criando id (unico) 
     int id = rand.nextInt(50) + 1;
+    //lista de usuarios conhecidos 
     List<user> knownUsers = new ArrayList<>();
+    //lista de datagramas para mandar
     List<DatagramPacket> toSendList = new ArrayList<>();
+    
     InetAddress group;
 
     public static void main(String args[]) throws UnknownHostException {
         MulticastPeer myMulti = new MulticastPeer();
         myMulti.group = InetAddress.getByName("228.5.6.7");
         System.out.println("Eu: id = " + myMulti.id);
+        
         global.estado = 0;
         //define ip do multicast
 
@@ -33,6 +38,7 @@ public class MulticastPeer {
 
             //cria thread de recepção
             listener c = new listener(s, myMulti);
+            //cria thread de envio
             speaker sp = new speaker(s, myMulti);
             
             while (true) {
@@ -75,7 +81,7 @@ public class MulticastPeer {
 
 class listener extends Thread {
 
-    InetAddress group;
+
     MulticastSocket socket;
     boolean running = true;
     MulticastPeer myMulti;
@@ -130,6 +136,9 @@ class listener extends Thread {
             {
                 //System.out.println(recebida);
                 String fileNameString = new String(recebida.split("\\]")[2].trim());
+                
+                
+                //checar se eu tenho arquivo
                 String stringToSend = new String("[" + myMulti.id + "]: " + "[File found]" + " eu tenho " + fileNameString);
                         
                 myMulti.toSendList.add(new DatagramPacket(stringToSend.getBytes(), stringToSend.length(), myMulti.group, 6789));
